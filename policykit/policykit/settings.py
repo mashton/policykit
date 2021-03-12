@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'integrations.discord',
     'integrations.discourse',
     'integrations.metagov',
+    'schema_graph',
     'actstream'
 ]
 

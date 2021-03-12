@@ -5,6 +5,7 @@ from django.conf.urls import include, url
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
 import urllib.parse
+from schema_graph.views import Schema
 from policykit.settings import SERVER_URL, SLACK_CLIENT_ID, REDDIT_CLIENT_ID, DISCORD_CLIENT_ID
 from policyengine import views as policyviews
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('main/policyengine/', include('policyengine.urls')),
     path('main/documentation', policyviews.documentation),
     path('admin/', admin.site.urls),
+    path("schema/", Schema.as_view()),
     path('slack/', include('integrations.slack.urls')),
     path('reddit/', include('integrations.reddit.urls')),
     path('discord/', include('integrations.discord.urls')),

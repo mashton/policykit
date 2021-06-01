@@ -12,7 +12,7 @@ import logging
 import json
 import parser
 import html
-
+import base64
 
 logger = logging.getLogger(__name__)
 db_logger = logging.getLogger("db")
@@ -129,12 +129,16 @@ def settings_page(request):
 
     plugin_schemas = None
     metagov_config = None
+    slack_authorize_state = None
     if user.has_perm("metagov.can_edit_metagov_config") or True:
         result = get_or_create_metagov_community(community)
         if result:
             metagov_config = json.dumps(result)
             plugin_schemas = json.dumps(get_plugin_config_schemas())
 
+        # base64.b64decode(base64.b64encode(json.dumps({'asdfsd': 'asdfasdf'}).encode('ascii'))).decode('ascii')
+        slack_authorize_state = json.dumps({ 'community': metagov_slug(community)}).encode('ascii')
+        slack_authorize_state = base64.b64encode(slack_authorize_state)
     return render(request, 'policyadmin/dashboard/settings.html', {
         'metagov_enabled': METAGOV_ENABLED,
         'metagov_config': metagov_config,
@@ -143,7 +147,8 @@ def settings_page(request):
         'user': get_user(request),
         # experimenting
         'slack_client_id': '',
-        'slack_redirect_uri': urllib.parse.quote(f"https://prototype.metagov.org/api/auth/slack/{metagov_slug(community)}", safe=''),
+        'slack_authorize_state': slack_authorize_state
+        # 'slack_redirect_uri': urllib.parse.quote(f"https://prototype.metagov.org/api/auth/slack/{metagov_slug(community)}", safe=''),
     })
 
 @login_required(login_url='/login')

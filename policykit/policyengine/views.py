@@ -138,7 +138,7 @@ def settings_page(request):
 
         # base64.b64decode(base64.b64encode(json.dumps({'asdfsd': 'asdfasdf'}).encode('ascii'))).decode('ascii')
         slack_authorize_state = json.dumps({ 'community': metagov_slug(community)}).encode('ascii')
-        slack_authorize_state = base64.b64encode(slack_authorize_state)
+        slack_authorize_state = base64.b64encode(slack_authorize_state).decode('ascii')
     return render(request, 'policyadmin/dashboard/settings.html', {
         'metagov_enabled': METAGOV_ENABLED,
         'metagov_config': metagov_config,

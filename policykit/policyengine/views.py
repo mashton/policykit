@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 from actstream.models import Action
 from policyengine.filter import *
-from policykit.settings import SERVER_URL, METAGOV_ENABLED
-import urllib.parse
+from policykit.settings import SERVER_URL, METAGOV_ENABLED, METAGOV_SLACK_CLIENT_ID
+
 import logging
 import json
 import parser
@@ -130,26 +130,27 @@ def settings_page(request):
     plugin_schemas = None
     metagov_config = None
     slack_authorize_state = None
-    if user.has_perm("metagov.can_edit_metagov_config") or True:
-        result = get_or_create_metagov_community(community)
-        if result:
-            metagov_config = json.dumps(result)
-            plugin_schemas = json.dumps(get_plugin_config_schemas())
 
-        # base64.b64decode(base64.b64encode(json.dumps({'asdfsd': 'asdfasdf'}).encode('ascii'))).decode('ascii')
-        slack_authorize_state = json.dumps({ 'community': metagov_slug(community)}).encode('ascii')
-        slack_authorize_state = base64.b64encode(slack_authorize_state).decode('ascii')
-    return render(request, 'policyadmin/dashboard/settings.html', {
+    context = {
         'metagov_enabled': METAGOV_ENABLED,
-        'metagov_config': metagov_config,
-        'plugin_schemas': plugin_schemas,
         'server_url': SERVER_URL,
         'user': get_user(request),
-        # experimenting
-        'slack_client_id': '',
-        'slack_authorize_state': slack_authorize_state
-        # 'slack_redirect_uri': urllib.parse.quote(f"https://prototype.metagov.org/api/auth/slack/{metagov_slug(community)}", safe=''),
-    })
+    }
+
+    # If user is permitted to edit Metagov config, add additional context
+    if user.has_perm("metagov.can_edit_metagov_config"):
+        result = get_or_create_metagov_community(community)
+        if result:
+            context['metagov_config'] = json.dumps(result)
+            context['plugin_schemas'] = json.dumps(get_plugin_config_schemas())
+    # If Metagov Slack Plugin is supported, show installation button
+    if METAGOV_ENABLED and METAGOV_SLACK_CLIENT_ID:
+        context['slack_client_id'] = METAGOV_SLACK_CLIENT_ID
+        state = json.dumps({ 'community': metagov_slug(community)}).encode('ascii')
+        state_encoded = base64.b64encode(state).decode('ascii')
+        context['slack_authorize_state'] = state_encoded
+
+    return render(request, 'policyadmin/dashboard/settings.html', context)
 
 @login_required(login_url='/login')
 def editor(request):

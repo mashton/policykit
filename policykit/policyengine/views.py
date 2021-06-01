@@ -122,7 +122,7 @@ def logout(request):
 
 @login_required(login_url='/login')
 def settings_page(request):
-    from integrations.metagov.library import get_or_create_metagov_community, get_plugin_config_schemas
+    from integrations.metagov.library import get_or_create_metagov_community, get_plugin_config_schemas, metagov_slug
 
     user = get_user(request)
     community = user.community
@@ -140,7 +140,10 @@ def settings_page(request):
         'metagov_config': metagov_config,
         'plugin_schemas': plugin_schemas,
         'server_url': SERVER_URL,
-        'user': get_user(request)
+        'user': get_user(request),
+        # experimenting
+        'slack_client_id': '',
+        'slack_redirect_uri': urllib.parse.quote(f"https://prototype.metagov.org/api/auth/slack/{metagov_slug(community)}", safe=''),
     })
 
 @login_required(login_url='/login')

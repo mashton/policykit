@@ -142,11 +142,8 @@ def settings_page(request):
             context['plugin_schemas'] = json.dumps(get_plugin_config_schemas())
             context['metagov_server_url'] = settings.METAGOV_URL
             context['metagov_community_slug'] = metagov_slug(community)
-
-    # if METAGOV_ENABLED:
-        # state = json.dumps({ 'community': metagov_slug(community)}).encode('ascii')
-        # state_encoded = base64.b64encode(state).decode('ascii')
-        # context['slack_authorize_state'] = state_encoded
+            # nagivate back to this page after slack install
+            context['slack_redirect_uri'] = f"{settings.SERVER_URL}/main/settings"
 
     return render(request, 'policyadmin/dashboard/settings.html', context)
 

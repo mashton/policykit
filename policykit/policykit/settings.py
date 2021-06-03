@@ -45,9 +45,6 @@ except NameError:
     # "METAGOV_URL" is missing from private.py
     METAGOV_ENABLED = False
 
-# Required if using Metagov and supporting the Metagov Slack plugin.
-METAGOV_SLACK_CLIENT_ID = ''
-
 # Application definition
 INTEGRATIONS = [
     'integrations.slack',
